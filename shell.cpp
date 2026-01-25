@@ -3,7 +3,7 @@
 #include <vector>
 #include <cstdlib> //For exit function and for getenv
 #include <unistd.h> //Contains POSIX/C functions
-
+#include <sys/wait.h> //For wait()
 
 
 std::vector<std::string> split(std::string command,char sp){
@@ -98,7 +98,36 @@ int main() {
       std::cout << "type: missing argument" << std::endl;
     }
     else {
-      std::cout << command << ": command not found" << std::endl;
+      std::vector<char*> argv;
+      std::vector<std::vector<char>> storage;
+      for(auto &cmds : commands){
+        std::vector<char> s;
+        for(char c: cmds){
+          s.push_back(c);
+        }
+        s.push_back('\0');
+        storage.push_back(s);
+      }
+      for(auto &it : storage){
+        argv.push_back(it.data());
+      }
+      argv.push_back(nullptr);
+      //This whole logic is for computing argc which is passed later to the execvp
+
+      pid_t pid = fork();
+      if(pid==0){
+        execvp(argv[0],argv.data());
+        perror("execvp");
+      }
+      else if(pid<0){
+        perror("Child process not created...");
+      }
+      else{
+        wait(nullptr);
+      }
+      /*else{
+        std::cout << command << ": command not found" << std::endl;
+      }*/ 
     }
   }
 }
