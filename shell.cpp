@@ -28,6 +28,10 @@ std::vector<std::string> split(std::string command,char sp){
   return cmds;
 }
 
+std::string pwd(){
+  return "";
+}
+
 int main() {
 
   // Flush after every std::cout / std:cerr
@@ -41,7 +45,7 @@ int main() {
     PATH = pathVar;
   }
 
-  std::vector<std::string> builtIns = {"echo","exit","type"};
+  std::vector<std::string> builtIns = {"echo","exit","type","pwd"};
   //Read eval print loop
   while (true){
 
@@ -91,11 +95,26 @@ int main() {
         }
         if(!executable){
           std::cout << commands[1] << ": not found" << std::endl;
+          // std::perror("%d : not found", commands[1]);
         }
       }
     }
     else if (commands[0] == "type" && commands.size() < 2) {
       std::cout << "type: missing argument" << std::endl;
+    }
+    else if(commands[0] == "pwd"){
+      if(commands.size() < 2){
+        char buf[1024];
+        // if(getcwd(buf, 1024)!=nullptr){ This also would work 
+        char *res = (getcwd(buf, 1024));
+        if(res != nullptr){
+          std::cout << buf << std::endl;
+        } else {
+          perror("getcwd");
+        }
+      } else {
+        std::cout << "More than required arguments !" << std::endl;
+      }
     }
     else {
       std::vector<char*> argv;
@@ -117,7 +136,8 @@ int main() {
       pid_t pid = fork();
       if(pid==0){
         execvp(argv[0],argv.data());
-        perror("execvp");
+        std::cout << argv[0] << ": command not found\n";
+	_exit(1);
       }
       else if(pid<0){
         perror("Child process not created...");
@@ -131,4 +151,6 @@ int main() {
     }
   }
 }
+
+
 
