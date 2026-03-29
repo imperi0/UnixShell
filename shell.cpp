@@ -40,11 +40,15 @@ int main() {
   std::cerr << std::unitbuf;
 
   std::string PATH;
+  std::string HOME;
   char* pathVar = getenv("PATH");
   if(pathVar != nullptr){
     PATH = pathVar;
   }
-
+  char* homeVar = getenv("HOME");
+  if(homeVar != nullptr){
+    HOME = homeVar;
+  } 
   std::vector<std::string> builtIns = {"echo","exit","type","pwd","cd"};
   //Read eval print loop
   while (true){
@@ -123,13 +127,18 @@ int main() {
         std::cout << "cd: too many arguments" << std::endl;
       } else {
         char ch[commands[1].size()+1];
-        for(int i=0; i<commands[1].size(); i++){
-          ch[i]=commands[1][i];
+        char * chptr;
+        if(commands[1]=="~"){
+          chptr=homeVar;
+        } else {
+          for(int i=0; i<commands[1].size(); i++){
+            ch[i]=commands[1][i];
+          }
+          ch[commands[1].size()]='\0';
+          chptr=&ch[0];
         }
-        ch[commands[1].size()]='\0';
-        char *chptr=ch;
         if(chdir(chptr)!=0){
-          perror("cd builtin");
+          std::cout << "cd: " << commands[1] << ": No such file or directory" << std::endl;
         }
       }
     }
@@ -162,12 +171,9 @@ int main() {
       else{
         wait(nullptr);
       }
-      /*else{
+      /*else{~
         std::cout << command << ": command not found" << std::endl;
       }*/ 
     }
   }
 }
-
-
-
