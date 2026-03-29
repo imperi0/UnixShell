@@ -45,7 +45,7 @@ int main() {
     PATH = pathVar;
   }
 
-  std::vector<std::string> builtIns = {"echo","exit","type","pwd"};
+  std::vector<std::string> builtIns = {"echo","exit","type","pwd","cd"};
   //Read eval print loop
   while (true){
 
@@ -114,6 +114,23 @@ int main() {
         }
       } else {
         std::cout << "More than required arguments !" << std::endl;
+      }
+    }
+    else if(commands[0] == "cd"){
+      if(commands.size() < 2){
+        std::cout << "cd: missing argument" << std::endl;
+      } else if(commands.size() > 2){
+        std::cout << "cd: too many arguments" << std::endl;
+      } else {
+        char ch[commands[1].size()+1];
+        for(int i=0; i<commands[1].size(); i++){
+          ch[i]=commands[1][i];
+        }
+        ch[commands[1].size()]='\0';
+        char *chptr=ch;
+        if(chdir(chptr)!=0){
+          perror("cd builtin");
+        }
       }
     }
     else {
