@@ -10,15 +10,19 @@ std::vector<std::string> split(std::string command,char sp){
 
   std::vector<std::string> cmds;
   std::string cmd = "";
-  
+  bool q=false;
   for(char c : command){
-    if(c==sp){
+    if(c==sp && !q){
       if(!cmd.empty()){
         cmds.push_back(cmd);
         cmd.clear();
       }
     }
     else{
+      if(c=='\''){
+        q=(!q);
+        continue;
+      }
       cmd+=c;
     }
   
